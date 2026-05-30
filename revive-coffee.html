@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revive Coffee — Artisan Blends</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@1,300;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EFE0;
+    --warm-white: #FBF8F2;
+    --espresso: #2C1810;
+    --dark-roast: #1A0F09;
+    --mocha: #6B3F2A;
+    --caramel: #C4803A;
+    --gold: #D4A547;
+    --light-mocha: #E8C9A8;
+    --sage: #7A8C6E;
+    --muted: #9A8A7A;
+    --error: #C0392B;
+    --success: #27AE60;
+    --shadow: 0 4px 24px rgba(44,24,16,0.12);
+    --shadow-hover: 0 12px 40px rgba(44,24,16,0.22);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--espresso);
+    overflow-x: hidden;
+  }
+
+  /* ─── TOASTS ─── */
+  #toast-container {
+    position: fixed; top: 20px; right: 20px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .toast {
+    background: var(--espresso); color: var(--cream);
+    padding: 12px 20px; border-radius: 8px;
+    font-size: 0.875rem; font-weight: 500;
+    animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+    max-width: 300px;
+  }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--error); }
+  @keyframes slideIn { from { transform: translateX(100px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+  @keyframes fadeOut { to { opacity:0; transform:translateX(100px); } }
+
+  /* ─── NAV ─── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--espresso);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 64px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight: 900;
+    color: var(--gold); letter-spacing: 1px;
+    cursor: pointer;
+  }
+  .nav-logo span { color: var(--cream); font-style: italic; font-weight: 400; }
+  .nav-links { display:flex; gap:8px; align-items:center; }
+  .nav-btn {
+    background: none; border: none;
+    color: var(--light-mocha); font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    padding: 8px 16px; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.1); color: var(--cream); }
+  .nav-btn.active { background: var(--gold); color: var(--espresso); }
+  #cart-btn {
+    background: var(--caramel); color: #fff;
+    border: none; padding: 8px 18px; border-radius: 20px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+    display:flex; align-items:center; gap:8px;
+  }
+  #cart-btn:hover { background: var(--gold); color: var(--espresso); transform: scale(1.03); }
+  #cart-count {
+    background: #fff; color: var(--espresso);
+    border-radius: 50%; width:20px; height:20px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; font-weight:700;
+  }
+
+  /* ─── PAGES ─── */
+  .page { display:none; }
+  .page.active { display:block; }
+
+  /* ─── HERO ─── */
+  #hero {
+    background: linear-gradient(135deg, var(--dark-roast) 0%, var(--mocha) 60%, var(--caramel) 100%);
+    padding: 100px 40px 80px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  #hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  #hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    color: var(--cream); font-weight: 900;
+    line-height: 1.1; position: relative;
+  }
+  #hero h1 em {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold); font-weight: 300;
+    display: block; font-size: 1.1em;
+  }
+  #hero p {
+    color: var(--light-mocha); font-size: 1.1rem;
+    margin: 20px auto 36px; max-width: 520px;
+    line-height: 1.7; position: relative;
+  }
+  .hero-cta {
+    background: var(--gold); color: var(--espresso);
+    border: none; padding: 16px 40px; border-radius: 40px;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem;
+    font-weight: 700; cursor: pointer; transition: all 0.3s;
+    letter-spacing: 0.5px; position: relative;
+  }
+  .hero-cta:hover { background: var(--cream); transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+
+  /* ─── CATEGORY FILTER ─── */
+  .filter-bar {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    padding: 32px 40px 16px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--light-mocha);
+  }
+  .filter-btn {
+    background: none; border: 2px solid var(--light-mocha);
+    color: var(--mocha); padding: 8px 20px; border-radius: 20px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--espresso); border-color: var(--espresso);
+    color: var(--cream);
+  }
+
+  /* ─── PRODUCTS GRID ─── */
+  .products-section { padding: 32px 40px 60px; background: var(--warm-white); }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; color: var(--espresso);
+    margin-bottom: 24px; padding-bottom: 12px;
+    border-bottom: 2px solid var(--light-mocha);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title::before {
+    content: ''; width: 6px; height: 6px;
+    background: var(--gold); border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+  }
+
+  /* ─── PRODUCT CARD ─── */
+  .product-card {
+    background: #fff; border-radius: 16px;
+    overflow: hidden; box-shadow: var(--shadow);
+    transition: all 0.3s ease; position: relative;
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+  .product-card.hidden { display:none; }
+
+  .card-badge {
+    position: absolute; top: 12px; left: 12px; z-index:2;
+    background: var(--gold); color: var(--espresso);
+    font-size: 0.7rem; font-weight: 700;
+    padding: 4px 10px; border-radius: 12px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .card-badge.sale { background: var(--error); color: #fff; }
+  .card-badge.combo { background: var(--sage); color: #fff; }
+
+  .card-img {
+    height: 160px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem;
+    position: relative; overflow: hidden;
+  }
+  .card-body { padding: 18px; flex:1; display:flex; flex-direction:column; }
+  .card-category {
+    font-size: 0.7rem; font-weight: 600;
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--espresso); margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 0.825rem; color: var(--muted);
+    line-height: 1.6; flex:1; margin-bottom: 14px;
+  }
+  .card-variants {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .variant-btn {
+    background: var(--cream); border: 1.5px solid var(--light-mocha);
+    color: var(--mocha); font-size: 0.75rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 12px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .variant-btn:hover, .variant-btn.selected {
+    background: var(--espresso); border-color: var(--espresso); color: var(--cream);
+  }
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: auto;
+  }
+  .price-block { display:flex; flex-direction:column; }
+  .price-original {
+    font-size: 0.75rem; color: var(--muted);
+    text-decoration: line-through;
+  }
+  .price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem; font-weight: 700; color: var(--espresso);
+  }
+  .price .currency { font-size: 0.9rem; }
+  .add-btn {
+    background: var(--espresso); color: var(--cream);
+    border: none; padding: 10px 18px; border-radius: 24px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .add-btn:hover { background: var(--caramel); transform: scale(1.05); }
+
+  /* ─── COMBOS SECTION ─── */
+  .combos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+  .combo-card {
+    background: linear-gradient(135deg, var(--espresso), var(--mocha));
+    border-radius: 16px; padding: 24px;
+    box-shadow: var(--shadow); transition: all 0.3s;
+    color: var(--cream); position: relative; overflow: hidden;
+  }
+  .combo-card::before {
+    content: ''; position: absolute;
+    top: -30px; right: -30px; width: 120px; height: 120px;
+    background: rgba(212,165,71,0.15); border-radius: 50%;
+  }
+  .combo-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+  .combo-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;
+    color: var(--gold);
+  }
+  .combo-items {
+    font-size: 0.825rem; color: var(--light-mocha);
+    line-height: 1.7; margin-bottom: 16px;
+  }
+  .combo-footer {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .combo-price-wrap { display:flex; flex-direction:column; }
+  .combo-original { font-size: 0.8rem; color: var(--muted); text-decoration: line-through; }
+  .combo-price { font-size: 1.4rem; font-weight: 700; color: var(--gold); }
+  .combo-savings {
+    font-size: 0.75rem; background: var(--gold);
+    color: var(--espresso); padding: 3px 8px;
+    border-radius: 10px; font-weight: 700;
+    margin-top: 4px; display: inline-block;
+  }
+
+  /* ─── CART SIDEBAR ─── */
+  #cart-overlay {
+    position: fixed; inset:0; background: rgba(0,0,0,0.5);
+    z-index: 200; display:none; backdrop-filter: blur(3px);
+  }
+  #cart-overlay.open { display:block; }
+  #cart-sidebar {
+    position: fixed; top:0; right:-480px; width:460px; height:100vh;
+    background: var(--warm-white); z-index:201;
+    box-shadow: -8px 0 40px rgba(0,0,0,0.2);
+    transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+    display:flex; flex-direction:column;
+    overflow: hidden;
+  }
+  #cart-sidebar.open { right:0; }
+  .cart-header {
+    background: var(--espresso); color: var(--cream);
+    padding: 20px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .cart-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+  }
+  .cart-close {
+    background:none; border:none; color: var(--cream);
+    font-size: 1.5rem; cursor:pointer; padding:4px; line-height:1;
+  }
+  #cart-items { flex:1; overflow-y:auto; padding:16px; }
+  .cart-item {
+    display:flex; gap:12px; align-items:flex-start;
+    padding: 14px 0; border-bottom: 1px solid var(--light-mocha);
+  }
+  .cart-item-icon { font-size:2rem; }
+  .cart-item-info { flex:1; }
+  .cart-item-name { font-weight:600; font-size:0.9rem; }
+  .cart-item-sub { font-size:0.78rem; color:var(--muted); }
+  .cart-item-controls {
+    display:flex; align-items:center; gap:8px; margin-top:8px;
+  }
+  .qty-btn {
+    background:var(--cream); border: 1.5px solid var(--light-mocha);
+    color:var(--espresso); width:26px; height:26px;
+    border-radius:50%; cursor:pointer; font-size:1rem;
+    display:flex; align-items:center; justify-content:center;
+    transition: all 0.2s; font-weight:700;
+  }
+  .qty-btn:hover { background:var(--espresso); color:var(--cream); }
+  .qty-num { font-weight:700; min-width:20px; text-align:center; }
+  .cart-item-price { font-family:'Playfair Display',serif; font-weight:700; font-size:1rem; }
+  .remove-item {
+    background:none; border:none; color:var(--muted);
+    cursor:pointer; font-size:1rem; padding:2px; line-height:1;
+  }
+  .remove-item:hover { color:var(--error); }
+  .cart-footer { padding:16px 20px; border-top: 2px solid var(--light-mocha); background:#fff; }
+  .cart-subtotal { display:flex; justify-content:space-between; margin-bottom:8px; }
+  .cart-total { display:flex; justify-content:space-between; font-weight:700; font-size:1.1rem; margin-bottom:16px; }
+  .checkout-btn {
+    width:100%; background: linear-gradient(135deg, var(--espresso), var(--mocha));
+    color:var(--cream); border:none; padding:14px;
+    border-radius:30px; font-family:'DM Sans',sans-serif;
+    font-size:1rem; font-weight:700; cursor:pointer;
+    transition: all 0.3s; letter-spacing:0.5px;
+  }
+  .checkout-btn:hover { opacity:0.9; transform: translateY(-2px); box-shadow:0 6px 20px rgba(44,24,16,0.3); }
+  .cart-empty {
+    text-align:center; padding:60px 20px;
+    color:var(--muted); font-size:1rem;
+  }
+  .cart-empty-icon { font-size:4rem; margin-bottom:16px; }
+
+  /* ─── CHECKOUT PAGE ─── */
+  #checkout-page { padding: 48px 40px; max-width:900px; margin:0 auto; }
+  #checkout-page h1 {
+    font-family:'Playfair Display',serif;
+    font-size:2rem; margin-bottom:32px;
+  }
+  .checkout-grid { display:grid; grid-template-columns:1fr 380px; gap:32px; }
+  @media(max-width:768px) { .checkout-grid { grid-template-columns:1fr; } }
+  .form-section { background:#fff; border-radius:16px; padding:28px; box-shadow:var(--shadow); }
+  .form-section h3 {
+    font-family:'Playfair Display',serif;
+    font-size:1.2rem; margin-bottom:20px;
+    color:var(--espresso); padding-bottom:10px;
+    border-bottom:1px solid var(--light-mocha);
+  }
+  .form-group { margin-bottom:18px; }
+  .form-group label {
+    display:block; font-size:0.8rem; font-weight:600;
+    color:var(--mocha); margin-bottom:6px;
+    text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width:100%; padding:12px 14px;
+    border: 1.5px solid var(--light-mocha);
+    border-radius:8px; font-family:'DM Sans',sans-serif;
+    font-size:0.9rem; color:var(--espresso);
+    background: var(--warm-white); transition: border 0.2s;
+    outline:none;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--caramel);
+  }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .payment-methods { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  .pay-method {
+    border: 2px solid var(--light-mocha); border-radius:10px;
+    padding:14px; text-align:center; cursor:pointer;
+    transition: all 0.2s; display:flex; flex-direction:column;
+    align-items:center; gap:6px;
+  }
+  .pay-method:hover, .pay-method.selected {
+    border-color: var(--caramel); background:rgba(196,128,58,0.08);
+  }
+  .pay-method-icon { font-size:1.8rem; }
+  .pay-method-label { font-size:0.8rem; font-weight:600; color:var(--espresso); }
+  .order-summary-card { background:#fff; border-radius:16px; padding:24px; box-shadow:var(--shadow); position:sticky; top:80px; }
+  .order-summary-card h3 {
+    font-family:'Playfair Display',serif;
+    font-size:1.2rem; margin-bottom:16px;
+  }
+  .summary-item {
+    display:flex; justify-content:space-between;
+    padding:8px 0; border-bottom:1px solid var(--light-mocha);
+    font-size:0.875rem;
+  }
+  .summary-total {
+    display:flex; justify-content:space-between;
+    padding-top:12px; margin-top:4px;
+    font-weight:700; font-size:1.1rem;
+  }
+  .place-order-btn {
+    width:100%; background:var(--espresso); color:var(--cream);
+    border:none; padding:16px; border-radius:30px;
+    font-family:'DM Sans',sans-serif; font-size:1rem;
+    font-weight:700; cursor:pointer; transition:all 0.3s;
+    margin-top:20px;
+  }
+  .place-order-btn:hover { background:var(--caramel); transform:translateY(-2px); }
+
+  /* ─── ORDER CONFIRMATION ─── */
+  #confirm-page { padding:60px 40px; text-align:center; max-width:600px; margin:0 auto; }
+  .confirm-icon { font-size:5rem; margin-bottom:20px; animation: pop 0.5s ease; }
+  @keyframes pop { 0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  #confirm-page h1 {
+    font-family:'Playfair Display',serif;
+    font-size:2.2rem; color:var(--espresso); margin-bottom:12px;
+  }
+  #confirm-page p { color:var(--muted); line-height:1.7; margin-bottom:8px; }
+  .order-id-badge {
+    display:inline-block; background:var(--espresso); color:var(--gold);
+    padding:8px 20px; border-radius:20px; font-weight:700;
+    font-size:1rem; margin:16px 0 24px; letter-spacing:1px;
+  }
+  .continue-btn {
+    background:var(--caramel); color:#fff; border:none;
+    padding:14px 36px; border-radius:30px;
+    font-family:'DM Sans',sans-serif; font-size:1rem;
+    font-weight:700; cursor:pointer; transition:all 0.2s;
+  }
+  .continue-btn:hover { background:var(--espresso); }
+
+  /* ─── ADMIN LOGIN ─── */
+  #admin-login { display:flex; align-items:center; justify-content:center; min-height: calc(100vh - 64px); background: var(--cream); }
+  .login-card {
+    background:#fff; border-radius:20px; padding:48px;
+    box-shadow: var(--shadow-hover); width:400px; max-width:90vw;
+    text-align:center;
+  }
+  .login-card h2 {
+    font-family:'Playfair Display',serif;
+    font-size:1.8rem; margin-bottom:8px;
+  }
+  .login-card p { color:var(--muted); margin-bottom:28px; }
+  .btn-primary {
+    width:100%; background:var(--espresso); color:var(--cream);
+    border:none; padding:14px; border-radius:10px;
+    font-family:'DM Sans',sans-serif; font-size:1rem;
+    font-weight:700; cursor:pointer; transition:all 0.2s;
+    margin-top:8px;
+  }
+  .btn-primary:hover { background:var(--caramel); }
+
+  /* ─── ADMIN PANEL ─── */
+  #admin-panel { display:flex; min-height:calc(100vh - 64px); }
+  .admin-sidebar {
+    width:240px; background:var(--espresso); color:var(--cream);
+    padding:24px 16px; flex-shrink:0;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .admin-sidebar-title {
+    font-family:'Playfair Display',serif;
+    font-size:1.1rem; color:var(--gold);
+    padding:8px 12px; margin-bottom:12px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+  }
+  .sidebar-btn {
+    background:none; border:none; color:var(--light-mocha);
+    font-family:'DM Sans',sans-serif; font-size:0.875rem;
+    font-weight:500; padding:10px 14px; border-radius:8px;
+    cursor:pointer; text-align:left; transition:all 0.2s;
+    display:flex; align-items:center; gap:10px;
+  }
+  .sidebar-btn:hover, .sidebar-btn.active {
+    background:rgba(255,255,255,0.1); color:var(--cream);
+  }
+  .sidebar-btn .icon { font-size:1rem; }
+  .admin-logout {
+    margin-top:auto; background:rgba(192,57,43,0.2);
+    border:1px solid rgba(192,57,43,0.4); color:#ff9f9f;
+  }
+  .admin-logout:hover { background:rgba(192,57,43,0.4); }
+  .admin-content { flex:1; padding:32px; background:var(--warm-white); overflow-y:auto; }
+  .admin-section { display:none; }
+  .admin-section.active { display:block; }
+  .admin-section h2 {
+    font-family:'Playfair Display',serif;
+    font-size:1.8rem; margin-bottom:24px;
+    color:var(--espresso);
+  }
+
+  /* ─── ADMIN CARDS / TABLES ─── */
+  .stat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; margin-bottom:32px; }
+  .stat-card {
+    background:#fff; border-radius:14px; padding:20px;
+    box-shadow:var(--shadow); text-align:center;
+  }
+  .stat-icon { font-size:2rem; margin-bottom:8px; }
+  .stat-value {
+    font-family:'Playfair Display',serif;
+    font-size:1.8rem; font-weight:700; color:var(--espresso);
+  }
+  .stat-label { font-size:0.8rem; color:var(--muted); margin-top:4px; }
+
+  .admin-table {
+    width:100%; border-collapse:collapse;
+    background:#fff; border-radius:12px; overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .admin-table th {
+    background:var(--espresso); color:var(--cream);
+    padding:12px 16px; text-align:left; font-size:0.8rem;
+    font-weight:600; text-transform:uppercase; letter-spacing:0.5px;
+  }
+  .admin-table td {
+    padding:12px 16px; border-bottom:1px solid var(--light-mocha);
+    font-size:0.875rem;
+  }
+  .admin-table tr:last-child td { border-bottom:none; }
+  .admin-table tr:hover td { background:rgba(244,239,224,0.5); }
+  .badge {
+    display:inline-block; padding:3px 10px; border-radius:12px;
+    font-size:0.75rem; font-weight:600;
+  }
+  .badge.paid { background:#d4edda; color:#155724; }
+  .badge.pending { background:#fff3cd; color:#856404; }
+  .badge.active { background:#d4edda; color:#155724; }
+  .badge.inactive { background:#f8d7da; color:#721c24; }
+
+  /* admin forms */
+  .admin-form-card {
+    background:#fff; border-radius:14px; padding:24px;
+    box-shadow:var(--shadow); margin-bottom:24px;
+  }
+  .admin-form-card h3 {
+    font-family:'Playfair Display',serif;
+    font-size:1.2rem; margin-bottom:18px;
+    color:var(--espresso);
+  }
+  .admin-form-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap:14px; }
+  .admin-input-group { display:flex; flex-direction:column; gap:5px; }
+  .admin-input-group label { font-size:0.78rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; }
+  .admin-input-group input, .admin-input-group select, .admin-input-group textarea {
+    padding:10px 12px; border:1.5px solid var(--light-mocha);
+    border-radius:8px; font-family:'DM Sans',sans-serif;
+    font-size:0.875rem; outline:none; background:var(--warm-white);
+    transition:border 0.2s;
+  }
+  .admin-input-group input:focus, .admin-input-group select:focus { border-color:var(--caramel); }
+  .btn-sm {
+    background:var(--espresso); color:var(--cream); border:none;
+    padding:8px 16px; border-radius:8px; font-family:'DM Sans',sans-serif;
+    font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.2s;
+  }
+  .btn-sm:hover { background:var(--caramel); }
+  .btn-danger { background:var(--error); }
+  .btn-danger:hover { background:#a93226; }
+  .btn-success { background:var(--success); }
+  .btn-warning { background:#d4800a; }
+
+  /* chart bars */
+  .bar-chart-wrap { background:#fff; border-radius:14px; padding:24px; box-shadow:var(--shadow); margin-bottom:24px; }
+  .bar-chart-title { font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:16px; }
+  .bar-chart { display:flex; align-items:flex-end; gap:12px; height:160px; }
+  .bar-group { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+  .bar {
+    width:100%; background: linear-gradient(to top, var(--mocha), var(--caramel));
+    border-radius:4px 4px 0 0; min-height:4px;
+    transition:height 0.5s ease; position:relative;
+  }
+  .bar-label { font-size:0.7rem; color:var(--muted); text-align:center; }
+  .bar-val { font-size:0.7rem; font-weight:700; color:var(--espresso); text-align:center; }
+
+  /* ─── RESPONSIVE ─── */
+  @media(max-width:640px) {
+    nav { padding:0 16px; }
+    .products-section, .filter-bar { padding-left:16px; padding-right:16px; }
+    #hero { padding:60px 20px; }
+    #checkout-page { padding:24px 16px; }
+    #admin-panel { flex-direction:column; }
+    .admin-sidebar { width:100%; flex-direction:row; flex-wrap:wrap; padding:12px; }
+    .admin-sidebar-title { display:none; }
+    .admin-content { padding:16px; }
+  }
+
+  /* ─── DISCOUNT STRIP ─── */
+  .discount-strip {
+    background: var(--gold); color: var(--espresso);
+    text-align:center; padding:10px;
+    font-size:0.875rem; font-weight:600;
+    display:none;
+  }
+  .discount-strip.visible { display:block; }
+
+  /* ─── MY ORDERS ─── */
+  #orders-page { padding:40px; max-width:900px; margin:0 auto; }
+  #orders-page h1 { font-family:'Playfair Display',serif; font-size:2rem; margin-bottom:24px; }
+  .order-card {
+    background:#fff; border-radius:14px; padding:20px;
+    box-shadow:var(--shadow); margin-bottom:16px;
+  }
+  .order-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px; }
+  .order-id { font-weight:700; font-family:'Playfair Display',serif; }
+  .order-date { font-size:0.8rem; color:var(--muted); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background: var(--cream); }
+  ::-webkit-scrollbar-thumb { background: var(--mocha); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- ─── NAV ─── -->
+<nav>
+  <div class="nav-logo" onclick="showPage('store')">Revive <span>Coffee</span></div>
+  <div class="nav-links">
+    <button class="nav-btn active" onclick="showPage('store')" id="nav-store">Shop</button>
+    <button class="nav-btn" onclick="showPage('orders')" id="nav-orders">My Orders</button>
+    <button class="nav-btn" onclick="showPage('admin-gate')" id="nav-admin">Admin</button>
+    <button id="cart-btn" onclick="toggleCart()">
+      🛒 Cart <span id="cart-count">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ─── CART SIDEBAR ─── -->
+<div id="cart-overlay" onclick="toggleCart()"></div>
+<div id="cart-sidebar">
+  <div class="cart-header">
+    <h2>☕ Your Order</h2>
+    <button class="cart-close" onclick="toggleCart()">×</button>
+  </div>
+  <div id="cart-items"></div>
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-subtotal"><span>Subtotal</span><span id="cart-sub">₹0</span></div>
+    <div class="cart-subtotal" id="cart-discount-row" style="display:none; color:var(--success)"><span>Discount</span><span id="cart-discount-val">-₹0</span></div>
+    <div class="cart-total"><span>Total</span><span id="cart-total">₹0</span></div>
+    <button class="checkout-btn" onclick="goCheckout()">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- ─── STORE PAGE ─── -->
+<div id="store" class="page active">
+  <div id="discount-strip" class="discount-strip"></div>
+
+  <!-- HERO -->
+  <div id="hero">
+    <h1>Wake Up to <em>Extraordinary</em></h1>
+    <p>Handcrafted instant coffees, rich spreads, and indulgent hot chocolates — crafted for those who refuse to settle for ordinary mornings.</p>
+    <button class="hero-cta" onclick="document.querySelector('.products-section').scrollIntoView({behavior:'smooth'})">Explore Our Collection</button>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterProducts('all', this)">All Products</button>
+    <button class="filter-btn" onclick="filterProducts('instant', this)">Instant Coffee</button>
+    <button class="filter-btn" onclick="filterProducts('chocolate', this)">Hot Chocolate</button>
+    <button class="filter-btn" onclick="filterProducts('spread', this)">Spreads</button>
+    <button class="filter-btn" onclick="filterProducts('combo', this)">Combos 🔥</button>
+  </div>
+
+  <!-- PRODUCTS -->
+  <div class="products-section">
+    <div class="section-title">Instant Coffees</div>
+    <div class="products-grid" id="coffee-grid"></div>
+
+    <div class="section-title" style="margin-top:40px">Hot Chocolate</div>
+    <div class="products-grid" id="choco-grid"></div>
+
+    <div class="section-title" style="margin-top:40px">Artisan Spreads</div>
+    <div class="products-grid" id="spread-grid"></div>
+
+    <div class="section-title" style="margin-top:40px" id="combo-section-title">Combo Offers</div>
+    <div class="combos-grid" id="combo-grid"></div>
+  </div>
+</div>
+
+<!-- ─── CHECKOUT PAGE ─── -->
+<div id="checkout" class="page">
+  <div id="checkout-page">
+    <h1>🛒 Checkout</h1>
+    <div class="checkout-grid">
+      <div>
+        <div class="form-section" style="margin-bottom:20px">
+          <h3>📦 Delivery Details</h3>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="co-name" placeholder="Your name">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="co-phone" placeholder="+91 00000 00000">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="co-email" placeholder="email@example.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <textarea id="co-address" rows="2" placeholder="Door no, Street, Area"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="co-city" placeholder="Chennai">
+            </div>
+            <div class="form-group">
+              <label>Pincode</label>
+              <input type="text" id="co-pin" placeholder="600001">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Order Type</label>
+            <select id="co-type">
+              <option value="individual">Individual Purchase</option>
+              <option value="store">Store / Reseller</option>
+            </select>
+          </div>
+          <div class="form-group" id="store-name-group" style="display:none">
+            <label>Store / Business Name</label>
+            <input type="text" id="co-store" placeholder="Your store name">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>💳 Payment Method</h3>
+          <div class="payment-methods">
+            <div class="pay-method selected" id="pm-upi" onclick="selectPayment('upi')">
+              <div class="pay-method-icon">📱</div>
+              <div class="pay-method-label">UPI / GPay</div>
+            </div>
+            <div class="pay-method" id="pm-card" onclick="selectPayment('card')">
+              <div class="pay-method-icon">💳</div>
+              <div class="pay-method-label">Card</div>
+            </div>
+            <div class="pay-method" id="pm-cod" onclick="selectPayment('cod')">
+              <div class="pay-method-icon">💵</div>
+              <div class="pay-method-label">Cash on Delivery</div>
+            </div>
+            <div class="pay-method" id="pm-netbanking" onclick="selectPayment('netbanking')">
+              <div class="pay-method-icon">🏦</div>
+              <div class="pay-method-label">Net Banking</div>
+            </div>
+          </div>
+          <div id="upi-details" class="form-group">
+            <label>UPI ID</label>
+            <input type="text" id="upi-id" placeholder="yourname@upi">
+          </div>
+          <div id="card-details" style="display:none">
+            <div class="form-group">
+              <label>Card Number</label>
+              <input type="text" id="card-num" placeholder="0000 0000 0000 0000" maxlength="19">
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Expiry</label><input type="text" placeholder="MM/YY" maxlength="5"></div>
+              <div class="form-group"><label>CVV</label><input type="password" placeholder="***" maxlength="3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div class="order-summary-card">
+        <h3>📋 Order Summary</h3>
+        <div id="checkout-items"></div>
+        <div class="summary-total"><span>Total</span><span id="checkout-total">₹0</span></div>
+        <button class="place-order-btn" onclick="placeOrder()">✅ Place Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONFIRMATION PAGE ─── -->
+<div id="confirmation" class="page">
+  <div id="confirm-page">
+    <div class="confirm-icon">✅</div>
+    <h1>Order Placed!</h1>
+    <p>Thank you for choosing Revive Coffee. Your order has been received and is being processed.</p>
+    <div class="order-id-badge" id="confirm-order-id">ORDER #RC000000</div>
+    <p>A confirmation has been noted. You'll receive your order soon.</p>
+    <div style="margin:24px 0; background:var(--cream); border-radius:12px; padding:20px; text-align:left;" id="confirm-summary"></div>
+    <button class="continue-btn" onclick="showPage('store')">Continue Shopping</button>
+  </div>
+</div>
+
+<!-- ─── MY ORDERS ─── -->
+<div id="orders-page-view" class="page">
+  <div id="orders-page">
+    <h1>📦 My Orders</h1>
+    <div id="orders-list"></div>
+  </div>
+</div>
+
+<!-- ─── ADMIN GATE ─── -->
+<div id="admin-gate" class="page">
+  <div id="admin-login">
+    <div class="login-card">
+      <div style="font-size:3rem; margin-bottom:12px">☕</div>
+      <h2>Admin Portal</h2>
+      <p>Revive Coffee Management System</p>
+      <div class="form-group" style="text-align:left">
+        <label>Username</label>
+        <input type="text" id="admin-user" placeholder="admin" style="width:100%;padding:12px;border:1.5px solid var(--light-mocha);border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;">
+      </div>
+      <div class="form-group" style="text-align:left;margin-top:12px">
+        <label>Password</label>
+        <input type="password" id="admin-pass" placeholder="••••••••" style="width:100%;padding:12px;border:1.5px solid var(--light-mocha);border-radius:8px;font-family:'DM Sans',sans-serif;outline:none;" onkeydown="if(event.key==='Enter')adminLogin()">
+      </div>
+      <button class="btn-primary" onclick="adminLogin()">Sign In →</button>
+      <p style="margin-top:16px; font-size:0.78rem; color:var(--muted)">Default: admin / revive2024</p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ADMIN PANEL ─── -->
+<div id="admin-panel-view" class="page">
+  <div id="admin-panel">
+    <div class="admin-sidebar">
+      <div class="admin-sidebar-title">☕ Admin Panel</div>
+      <button class="sidebar-btn active" onclick="adminTab('dashboard')" id="tab-dashboard"><span class="icon">📊</span>Dashboard</button>
+      <button class="sidebar-btn" onclick="adminTab('products')" id="tab-products"><span class="icon">📦</span>Products</button>
+      <button class="sidebar-btn" onclick="adminTab('combos')" id="tab-combos"><span class="icon">🎁</span>Combo Offers</button>
+      <button class="sidebar-btn" onclick="adminTab('discounts')" id="tab-discounts"><span class="icon">🏷️</span>Discounts</button>
+      <button class="sidebar-btn" onclick="adminTab('orders')" id="tab-orders"><span class="icon">🛒</span>Orders</button>
+      <button class="sidebar-btn" onclick="adminTab('sales')" id="tab-sales"><span class="icon">📈</span>Sales Analytics</button>
+      <button class="sidebar-btn" onclick="adminTab('admins')" id="tab-admins"><span class="icon">👥</span>Manage Admins</button>
+      <button class="sidebar-btn admin-logout" onclick="adminLogout()"><span class="icon">🚪</span>Logout</button>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- DASHBOARD -->
+      <div class="admin-section active" id="section-dashboard">
+        <h2>📊 Dashboard</h2>
+        <div class="stat-grid" id="dash-stats"></div>
+        <div class="bar-chart-wrap">
+          <div class="bar-chart-title">Monthly Revenue (₹)</div>
+          <div class="bar-chart" id="monthly-bar"></div>
+        </div>
+        <h3 style="font-family:'Playfair Display',serif; margin-bottom:12px;">Recent Orders</h3>
+        <div id="dash-recent-orders"></div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="admin-section" id="section-products">
+        <h2>📦 Products</h2>
+        <div class="admin-form-card">
+          <h3>Add New Product</h3>
+          <div class="admin-form-grid">
+            <div class="admin-input-group">
+              <label>Product Name</label>
+              <input type="text" id="np-name" placeholder="e.g. Dark Roast Blend">
+            </div>
+            <div class="admin-input-group">
+              <label>Category</label>
+              <select id="np-cat">
+                <option value="instant">Instant Coffee</option>
+                <option value="chocolate">Hot Chocolate</option>
+                <option value="spread">Spread</option>
+              </select>
+            </div>
+            <div class="admin-input-group">
+              <label>Price (₹)</label>
+              <input type="number" id="np-price" placeholder="350">
+            </div>
+            <div class="admin-input-group">
+              <label>Variants (comma separated)</label>
+              <input type="text" id="np-variants" placeholder="Agglo, Freeze Dried">
+            </div>
+            <div class="admin-input-group" style="grid-column:1/-1">
+              <label>Description</label>
+              <textarea id="np-desc" rows="2" placeholder="Product description..."></textarea>
+            </div>
+            <div class="admin-input-group">
+              <label>Emoji Icon</label>
+              <input type="text" id="np-icon" placeholder="☕">
+            </div>
+          </div>
+          <button class="btn-sm" style="margin-top:14px" onclick="addProduct()">+ Add Product</button>
+        </div>
+        <table class="admin-table" id="products-table">
+          <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="products-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- COMBOS -->
+      <div class="admin-section" id="section-combos">
+        <h2>🎁 Combo Offers</h2>
+        <div class="admin-form-card">
+          <h3>Create Combo</h3>
+          <div class="admin-form-grid">
+            <div class="admin-input-group">
+              <label>Combo Name</label>
+              <input type="text" id="nc-name" placeholder="Morning Ritual Bundle">
+            </div>
+            <div class="admin-input-group">
+              <label>Combo Price (₹)</label>
+              <input type="number" id="nc-price" placeholder="900">
+            </div>
+            <div class="admin-input-group" style="grid-column:1/-1">
+              <label>Select Products (hold Ctrl/Cmd to multi-select)</label>
+              <select id="nc-products" multiple style="height:120px"></select>
+            </div>
+            <div class="admin-input-group" style="grid-column:1/-1">
+              <label>Description</label>
+              <textarea id="nc-desc" rows="2" placeholder="Combo description..."></textarea>
+            </div>
+          </div>
+          <button class="btn-sm" style="margin-top:14px" onclick="addCombo()">+ Create Combo</button>
+        </div>
+        <table class="admin-table" id="combos-table">
+          <thead><tr><th>Name</th><th>Items</th><th>Original</th><th>Combo Price</th><th>Actions</th></tr></thead>
+          <tbody id="combos-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- DISCOUNTS -->
+      <div class="admin-section" id="section-discounts">
+        <h2>🏷️ Discounts & Promotions</h2>
+        <div class="admin-form-card">
+          <h3>Create Discount</h3>
+          <div class="admin-form-grid">
+            <div class="admin-input-group">
+              <label>Promo Code</label>
+              <input type="text" id="nd-code" placeholder="REVIVE20" style="text-transform:uppercase">
+            </div>
+            <div class="admin-input-group">
+              <label>Discount Type</label>
+              <select id="nd-type">
+                <option value="percent">Percentage (%)</option>
+                <option value="flat">Flat Amount (₹)</option>
+              </select>
+            </div>
+            <div class="admin-input-group">
+              <label>Value</label>
+              <input type="number" id="nd-value" placeholder="10">
+            </div>
+            <div class="admin-input-group">
+              <label>Min Order (₹)</label>
+              <input type="number" id="nd-min" placeholder="500">
+            </div>
+            <div class="admin-input-group">
+              <label>Applies To</label>
+              <select id="nd-applies">
+                <option value="all">All Products</option>
+                <option value="instant">Instant Coffee</option>
+                <option value="chocolate">Hot Chocolate</option>
+                <option value="spread">Spreads</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top:14px; display:flex; gap:10px; align-items:center">
+            <button class="btn-sm" onclick="addDiscount()">+ Add Discount</button>
+            <div class="admin-input-group" style="display:flex; align-items:center; gap:8px; margin:0">
+              <label style="margin:0">Global Banner:</label>
+              <input type="text" id="global-banner" placeholder="e.g. 10% OFF on all orders above ₹1000!" style="padding:8px 10px; border:1.5px solid var(--light-mocha); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.85rem; outline:none; width:320px;">
+              <button class="btn-sm btn-success" onclick="setGlobalBanner()">Set Banner</button>
+              <button class="btn-sm btn-danger" onclick="clearGlobalBanner()">Clear</button>
+            </div>
+          </div>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Applies To</th><th>Actions</th></tr></thead>
+          <tbody id="discounts-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="admin-section" id="section-orders">
+        <h2>🛒 All Orders</h2>
+        <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap">
+          <select id="order-filter-status" style="padding:8px 12px; border:1.5px solid var(--light-mocha); border-radius:8px; font-family:'DM Sans',sans-serif; outline:none;" onchange="renderAdminOrders()">
+            <option value="all">All Status</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+          </select>
+          <select id="order-filter-type" style="padding:8px 12px; border:1.5px solid var(--light-mocha); border-radius:8px; font-family:'DM Sans',sans-serif; outline:none;" onchange="renderAdminOrders()">
+            <option value="all">All Types</option>
+            <option value="individual">Individual</option>
+            <option value="store">Store</option>
+          </select>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Type</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr></thead>
+          <tbody id="admin-orders-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- SALES ANALYTICS -->
+      <div class="admin-section" id="section-sales">
+        <h2>📈 Sales Analytics</h2>
+        <div class="stat-grid" id="sales-stats"></div>
+
+        <!-- Monthly chart -->
+        <div class="bar-chart-wrap">
+          <div class="bar-chart-title">Monthly Revenue (₹)</div>
+          <div class="bar-chart" id="sales-monthly-bar"></div>
+        </div>
+
+        <!-- Top products -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+          <div class="bar-chart-wrap">
+            <div class="bar-chart-title">Top Products by Units Sold</div>
+            <div id="top-products-list"></div>
+          </div>
+          <div class="bar-chart-wrap">
+            <div class="bar-chart-title">Sales by Customer Type</div>
+            <div id="sales-type-breakdown"></div>
+          </div>
+        </div>
+
+        <h3 style="font-family:'Playfair Display',serif; margin:24px 0 12px;">Store Sales Breakdown</h3>
+        <table class="admin-table">
+          <thead><tr><th>Store Name</th><th>Orders</th><th>Items Sold</th><th>Revenue</th><th>Avg Order</th></tr></thead>
+          <tbody id="store-sales-tbody"></tbody>
+        </table>
+      </div>
+
+      <!-- MANAGE ADMINS -->
+      <div class="admin-section" id="section-admins">
+        <h2>👥 Manage Admins</h2>
+        <div class="admin-form-card">
+          <h3>Add New Admin</h3>
+          <div class="admin-form-grid">
+            <div class="admin-input-group">
+              <label>Username</label>
+              <input type="text" id="na-user" placeholder="newadmin">
+            </div>
+            <div class="admin-input-group">
+              <label>Password</label>
+              <input type="password" id="na-pass" placeholder="••••••••">
+            </div>
+            <div class="admin-input-group">
+              <label>Full Name</label>
+              <input type="text" id="na-name" placeholder="Admin Name">
+            </div>
+            <div class="admin-input-group">
+              <label>Role</label>
+              <select id="na-role">
+                <option value="superadmin">Super Admin</option>
+                <option value="manager">Manager</option>
+                <option value="viewer">Viewer</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-sm" style="margin-top:14px" onclick="addAdmin()">+ Add Admin</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Added</th><th>Actions</th></tr></thead>
+          <tbody id="admins-tbody"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /admin-content -->
+  </div>
+</div>
+
+<script>
+// ─── DATA STORE (localStorage) ───────────────────────────────────────────────
+const DB = {
+  get: k => { try { return JSON.parse(localStorage.getItem('rc_'+k)); } catch(e){ return null; } },
+  set: (k,v) => localStorage.setItem('rc_'+k, JSON.stringify(v)),
+  del: k => localStorage.removeItem('rc_'+k),
+};
+
+// ─── DEFAULT DATA ─────────────────────────────────────────────────────────────
+const DEFAULT_PRODUCTS = [
+  // INSTANT COFFEES
+  { id:'p1', name:'South Blend', cat:'instant', price:350, icon:'☕', active:true,
+    variants:['Agglo','Freeze Dried'],
+    desc:'A bold, aromatic blend inspired by the rich coffee culture of South India. Full-bodied with a deep roasted character and a smooth, lingering finish that pairs beautifully with milk.' },
+  { id:'p2', name:'Dark Chocolate', cat:'instant', price:350, icon:'🍫', active:true,
+    variants:['Agglo','Freeze Dried'],
+    desc:'Where the intensity of dark roast meets velvety cocoa undertones. A deeply satisfying cup for chocolate lovers who crave complexity in every sip.' },
+  { id:'p3', name:'Hazelnut', cat:'instant', price:350, icon:'🌰', active:true,
+    variants:['Agglo','Freeze Dried'],
+    desc:'Warm, nutty hazelnut aromas woven through a smooth coffee base. Naturally sweet and utterly comforting — like a café favourite, ready in seconds.' },
+  { id:'p4', name:'French Vanilla', cat:'instant', price:350, icon:'🌼', active:true,
+    variants:['Agglo','Freeze Dried'],
+    desc:'Classic French vanilla sweetness meets premium instant coffee. Creamy, aromatic, and effortlessly elegant — the ideal morning ritual for those who love a gentle indulgence.' },
+  { id:'p5', name:'Cocoa Mint', cat:'instant', price:350, icon:'🌿', active:true,
+    variants:['Agglo','Freeze Dried'],
+    desc:'A refreshing fusion of rich cocoa and cool mint. Invigorating and unique, this blend awakens the senses with every sip — perfect for an afternoon pick-me-up.' },
+  { id:'p6', name:'Raspberry', cat:'instant', price:350, icon:'🫐', active:true,
+    variants:['Agglo','Freeze Dried'],
+    desc:'Bright, fruity raspberry notes dancing over a smooth coffee canvas. Surprisingly delightful — this is coffee reimagined with a burst of summer sweetness.' },
+  { id:'p7', name:'Caramel', cat:'instant', price:350, icon:'🍯', active:true,
+    variants:['Agglo','Freeze Dried'],
+    desc:'Golden, buttery caramel blended with rich instant coffee. Dessert-like in its decadence yet balanced enough for any time of day. Pure comfort in every cup.' },
+  // CHOCOLATES
+  { id:'p8', name:'Cocoa Powder', cat:'chocolate', price:200, icon:'🍵', active:true,
+    variants:[],
+    desc:'Pure, premium-grade cocoa powder with an intense chocolate flavour. Versatile for hot drinks, baking, smoothies, and more — crafted to deliver rich, authentic cocoa depth.' },
+  { id:'p9', name:'Dark Hot Chocolate with Chocolate Buttons', cat:'chocolate', price:350, icon:'🫗', active:true,
+    variants:[],
+    desc:'Luxuriously thick dark hot chocolate enhanced with real chocolate buttons that melt into the drink. An indulgent warming experience that transforms your mug into a dessert.' },
+  // SPREADS
+  { id:'p10', name:'Choco Almond Spread', cat:'spread', price:325, icon:'🥜', active:true,
+    variants:[],
+    desc:'Silky smooth chocolate spread loaded with real almond goodness. Perfect on toast, crepes, or straight from the jar — a protein-rich indulgence you'll reach for every morning.' },
+  { id:'p11', name:'Choco Hazelnut Spread', cat:'spread', price:325, icon:'🍫', active:true,
+    variants:[],
+    desc:'The classic combination elevated. Rich, roasted hazelnuts blended with fine chocolate for a lusciously creamy spread that makes every bite extraordinary.' },
+  { id:'p12', name:'Cashew Nut Spread', cat:'spread', price:325, icon:'🌰', active:true,
+    variants:[],
+    desc:'Buttery cashews transformed into a delicate, naturally sweet spread. Lighter than traditional nut butters with a mellow richness that pairs brilliantly with coffee and bread.' },
+];
+
+const DEFAULT_COMBOS = [
+  { id:'c1', name:'Morning Ritual Bundle', productIds:['p1','p7','p10'], price:900, active:true,
+    desc:'Start your mornings right — South Blend coffee, Caramel coffee, and Choco Almond Spread. Everything you need for the perfect coffee morning.' },
+  { id:'c2', name:'Choco Lover\'s Dream', productIds:['p2','p9','p11'], price:950, active:true,
+    desc:'For the ultimate chocolate enthusiast: Dark Chocolate Coffee, Dark Hot Chocolate with Buttons, and Choco Hazelnut Spread. Pure indulgence in one box.' },
+  { id:'c3', name:'Spread & Sip Trio', productIds:['p10','p11','p12'], price:850, active:true,
+    desc:'Our three artisan spreads — Choco Almond, Choco Hazelnut, and Cashew Nut — in one delightful package. Perfect for gifting or stocking up.' },
+];
+
+const DEFAULT_ADMINS = [
+  { username:'admin', password:'revive2024', name:'Super Admin', role:'superadmin', added: new Date().toISOString() }
+];
+
+// Initialise
+function initDB() {
+  if (!DB.get('products')) DB.set('products', DEFAULT_PRODUCTS);
+  if (!DB.get('combos')) DB.set('combos', DEFAULT_COMBOS);
+  if (!DB.get('admins')) DB.set('admins', DEFAULT_ADMINS);
+  if (!DB.get('orders')) DB.set('orders', []);
+  if (!DB.get('discounts')) DB.set('discounts', []);
+  if (!DB.get('global_banner')) DB.set('global_banner', '');
+}
+
+// ─── CART ─────────────────────────────────────────────────────────────────────
+let cart = [];
+
+function addToCart(productId, variant='') {
+  const products = DB.get('products');
+  const product = products.find(p => p.id === productId);
+  if (!product) return;
+  const key = productId + (variant ? ':'+variant : '');
+  const existing = cart.find(i => i.key === key);
+  if (existing) existing.qty++;
+  else cart.push({ key, productId, variant, name:product.name, price:product.price, qty:1 });
+  updateCartUI();
+  toast(`${product.name}${variant ? ' ('+variant+')' : ''} added to cart ☕`, 'success');
+}
+
+function addComboToCart(comboId) {
+  const combo = DB.get('combos').find(c => c.id === comboId);
+  if (!combo) return;
+  const key = 'combo:'+comboId;
+  const existing = cart.find(i => i.key === key);
+  if (existing) existing.qty++;
+  else cart.push({ key, productId: comboId, variant:'Combo', name: combo.name, price: combo.price, qty:1, isCombo:true });
+  updateCartUI();
+  toast(`${combo.name} added to cart! 🎁`, 'success');
+}
+
+function removeFromCart(key) {
+  cart = cart.filter(i => i.key !== key);
+  updateCartUI();
+}
+
+function changeQty(key, delta) {
+  const item = cart.find(i => i.key === key);
+  if (!item) return;
+  item.qty = Math.max(0, item.qty + delta);
+  if (item.qty === 0) cart = cart.filter(i => i.key !== key);
+  updateCartUI();
+}
+
+function getCartSubtotal() { return cart.reduce((s,i) => s + i.price*i.qty, 0); }
+
+function getCartDiscount(code='') {
+  if (!code) return 0;
+  const discounts = DB.get('discounts') || [];
+  const d = discounts.find(x => x.code.toUpperCase() === code.toUpperCase());
+  if (!d) return 0;
+  const sub = getCartSubtotal();
+  if (d.min && sub < d.min) return 0;
+  if (d.type === 'percent') return Math.round(sub * d.value / 100);
+  return Math.min(d.value, sub);
+}
+
+function updateCartUI() {
+  const count = cart.reduce((s,i) => s+i.qty, 0);
+  document.getElementById('cart-count').textContent = count;
+  const itemsEl = document.getElementById('cart-items');
+  const footerEl = document.getElementById('cart-footer');
+
+  if (cart.length === 0) {
+    itemsEl.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">☕</div><p>Your cart is empty.<br>Add some coffee!</p></div>`;
+    footerEl.style.display = 'none';
+    return;
+  }
+
+  footerEl.style.display = 'block';
+  itemsEl.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}${item.variant && item.variant!=='Combo' ? ' <span style="font-size:0.75rem;color:var(--muted)">(${item.variant})</span>' : ''}</div>
+        <div class="cart-item-sub">₹${item.price} each</div>
+        <div class="cart-item-controls">
+          <button class="qty-btn" onclick="changeQty('${item.key}',-1)">−</button>
+          <span class="qty-num">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${item.key}',1)">+</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="cart-item-price">₹${item.price*item.qty}</span>
+        <button class="remove-item" onclick="removeFromCart('${item.key}')">🗑️</button>
+      </div>
+    </div>`).join('');
+
+  const sub = getCartSubtotal();
+  document.getElementById('cart-sub').textContent = `₹${sub}`;
+  document.getElementById('cart-total').textContent = `₹${sub}`;
+}
+
+function toggleCart() {
+  document.getElementById('cart-sidebar').classList.toggle('open');
+  document.getElementById('cart-overlay').classList.toggle('open');
+}
+
+// ─── PAGES ────────────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pageMap = { 'store':'store', 'checkout':'checkout', 'confirmation':'confirmation', 'orders':'orders-page-view', 'admin-gate':'admin-gate', 'admin':'admin-panel-view' };
+  const el = document.getElementById(pageMap[id] || id);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (id==='store') document.getElementById('nav-store').classList.add('active');
+  if (id==='orders') { document.getElementById('nav-orders').classList.add('active'); renderMyOrders(); }
+  if (id==='admin-gate' || id==='admin') document.getElementById('nav-admin').classList.add('active');
+  window.scrollTo(0,0);
+  if (id==='store') renderStoreBanner();
+}
+
+function goCheckout() {
+  if (cart.length === 0) { toast('Your cart is empty!', 'error'); return; }
+  toggleCart();
+  renderCheckoutSummary();
+  showPage('checkout');
+}
+
+function renderCheckoutSummary() {
+  const el = document.getElementById('checkout-items');
+  el.innerHTML = cart.map(i => `
+    <div class="summary-item"><span>${i.name}${i.variant&&i.variant!=='Combo'?' ('+i.variant+')':''} ×${i.qty}</span><span>₹${i.price*i.qty}</span></div>`).join('');
+  document.getElementById('checkout-total').textContent = `₹${getCartSubtotal()}`;
+}
+
+// payment method toggle
+let selectedPayment = 'upi';
+function selectPayment(m) {
+  selectedPayment = m;
+  ['upi','card','cod','netbanking'].forEach(x => document.getElementById('pm-'+x).classList.remove('selected'));
+  document.getElementById('pm-'+m).classList.add('selected');
+  document.getElementById('upi-details').style.display = m==='upi' ? 'block' : 'none';
+  document.getElementById('card-details').style.display = m==='card' ? 'block' : 'none';
+}
+
+document.getElementById('co-type').addEventListener('change', function() {
+  document.getElementById('store-name-group').style.display = this.value==='store' ? 'block' : 'none';
+});
+
+// ─── PLACE ORDER ──────────────────────────────────────────────────────────────
+function placeOrder() {
+  const name = document.getElementById('co-name').value.trim();
+  const phone = document.getElementById('co-phone').value.trim();
+  const address = document.getElementById('co-address').value.trim();
+  if (!name||!phone||!address) { toast('Please fill in Name, Phone & Address', 'error'); return; }
+
+  const orders = DB.get('orders') || [];
+  const orderId = 'RC' + Date.now().toString().slice(-6);
+  const order = {
+    id: orderId,
+    customer: name,
+    phone,
+    email: document.getElementById('co-email').value,
+    address: address + ', ' + document.getElementById('co-city').value + ' - ' + document.getElementById('co-pin').value,
+    type: document.getElementById('co-type').value,
+    storeName: document.getElementById('co-store').value,
+    payment: selectedPayment,
+    items: [...cart],
+    subtotal: getCartSubtotal(),
+    total: getCartSubtotal(),
+    status: selectedPayment==='cod' ? 'pending' : 'paid',
+    date: new Date().toISOString(),
+  };
+  orders.push(order);
+  DB.set('orders', orders);
+
+  // Confirm page
+  document.getElementById('confirm-order-id').textContent = 'ORDER #' + orderId;
+  document.getElementById('confirm-summary').innerHTML = `
+    <strong>${name}</strong><br>
+    ${order.address}<br><br>
+    <strong>Items:</strong><br>
+    ${cart.map(i=>`${i.name}${i.variant&&i.variant!=='Combo'?' ('+i.variant+')':''} × ${i.qty} = ₹${i.price*i.qty}`).join('<br>')}
+    <hr style="margin:12px 0; border:none; border-top:1px solid var(--light-mocha)">
+    <strong>Total: ₹${order.total}</strong> | Payment: ${selectedPayment.toUpperCase()} | Status: <strong style="color:${order.status==='paid'?'var(--success)':'var(--caramel)'}">${order.status.toUpperCase()}</strong>
+  `;
+  cart = [];
+  updateCartUI();
+  showPage('confirmation');
+}
+
+// ─── STORE RENDER ─────────────────────────────────────────────────────────────
+function renderStoreBanner() {
+  const banner = DB.get('global_banner');
+  const strip = document.getElementById('discount-strip');
+  if (banner) { strip.textContent = '🏷️ ' + banner; strip.classList.add('visible'); }
+  else strip.classList.remove('visible');
+}
+
+function renderProducts() {
+  const products = DB.get('products') || [];
+  const coffees = products.filter(p => p.cat==='instant' && p.active);
+  const chocos = products.filter(p => p.cat==='chocolate' && p.active);
+  const spreads = products.filter(p => p.cat==='spread' && p.active);
+  const combos = DB.get('combos') || [];
+
+  const catBg = { instant:'linear-gradient(135deg,#3d1f10,#7a4020)', chocolate:'linear-gradient(135deg,#1a0d0d,#5c2a2a)', spread:'linear-gradient(135deg,#2a1f0d,#6b4a1e)' };
+  const catLabel = { instant:'Instant Coffee', chocolate:'Hot Chocolate', spread:'Artisan Spread' };
+
+  function cardHtml(p) {
+    const variantBtns = p.variants.length ? `<div class="card-variants">${p.variants.map(v=>`<button class="variant-btn" onclick="this.parentNode.querySelectorAll('.variant-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">${v}</button>`).join('')}</div>` : '';
+    return `<div class="product-card" data-cat="${p.cat}" id="card-${p.id}">
+      <div class="card-badge">${catLabel[p.cat]}</div>
+      <div class="card-img" style="background:${catBg[p.cat]}">${p.icon}</div>
+      <div class="card-body">
+        <div class="card-category">${catLabel[p.cat]}</div>
+        <div class="card-name">${p.name}</div>
+        <div class="card-desc">${p.desc}</div>
+        ${variantBtns}
+        <div class="card-footer">
+          <div class="price-block">
+            <span class="price"><span class="currency">₹</span>${p.price}</span>
+          </div>
+          <button class="add-btn" onclick="handleAddToCart('${p.id}', this)">Add to Cart</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('coffee-grid').innerHTML = coffees.map(cardHtml).join('') || '<p style="color:var(--muted)">No products in this category.</p>';
+  document.getElementById('choco-grid').innerHTML = chocos.map(cardHtml).join('');
+  document.getElementById('spread-grid').innerHTML = spreads.map(cardHtml).join('');
+
+  // Combos
+  const activeProducts = products.filter(p=>p.active);
+  document.getElementById('combo-grid').innerHTML = combos.filter(c=>c.active).map(c => {
+    const items = c.productIds.map(id => activeProducts.find(p=>p.id===id)).filter(Boolean);
+    const original = items.reduce((s,p)=>s+p.price,0);
+    const saving = original - c.price;
+    return `<div class="combo-card" data-cat="combo" id="card-${c.id}">
+      <div class="card-badge combo">Combo Deal</div>
+      <div class="combo-name">🎁 ${c.name}</div>
+      <div class="combo-items">${items.map(p=>`${p.icon} ${p.name}`).join(' + ')}<br><br><em style="font-size:0.8rem;opacity:0.8">${c.desc}</em></div>
+      <div class="combo-footer">
+        <div class="combo-price-wrap">
+          <span class="combo-original">₹${original}</span>
+          <span class="combo-price">₹${c.price}</span>
+          <span class="combo-savings">Save ₹${saving}!</span>
+        </div>
+        <button class="add-btn" onclick="addComboToCart('${c.id}')">Add Bundle</button>
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:var(--muted)">No combos available.</p>';
+}
+
+function handleAddToCart(productId, btn) {
+  const card = document.getElementById('card-'+productId);
+  const selectedVariant = card ? card.querySelector('.variant-btn.selected') : null;
+  const products = DB.get('products') || [];
+  const product = products.find(p=>p.id===productId);
+  if (product && product.variants.length > 0 && !selectedVariant) {
+    toast('Please select a variant (Agglo or Freeze Dried) first!', 'error');
+    return;
+  }
+  addToCart(productId, selectedVariant ? selectedVariant.textContent : '');
+}
+
+function filterProducts(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const allCards = document.querySelectorAll('.product-card, .combo-card');
+  allCards.forEach(card => {
+    if (cat==='all' || card.dataset.cat===cat) card.classList.remove('hidden');
+    else card.classList.add('hidden');
+  });
+  // Show/hide section titles
+  const sections = ['coffee-grid','choco-grid','spread-grid'];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    const title = el.previousElementSibling;
+    el.style.display = (cat==='all'||id.includes(cat.substring(0,5))) ? '' : 'none';
+    if (title) title.style.display = (cat==='all'||id.includes(cat.substring(0,5))) ? '' : 'none';
+  });
+}
+
+// ─── MY ORDERS ────────────────────────────────────────────────────────────────
+function renderMyOrders() {
+  const orders = DB.get('orders') || [];
+  const el = document.getElementById('orders-list');
+  if (!orders.length) { el.innerHTML = '<p style="color:var(--muted)">No orders yet. Start shopping! ☕</p>'; return; }
+  el.innerHTML = [...orders].reverse().map(o => `
+    <div class="order-card">
+      <div class="order-card-header">
+        <span class="order-id">🛒 #${o.id}</span>
+        <span class="order-date">${new Date(o.date).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</span>
+        <span class="badge ${o.status}">${o.status.toUpperCase()}</span>
+      </div>
+      <div style="font-size:0.875rem; color:var(--muted); margin-bottom:8px">${o.address}</div>
+      <div style="font-size:0.875rem; margin-bottom:8px">${o.items.map(i=>`${i.name} ×${i.qty}`).join(', ')}</div>
+      <div style="font-weight:700; font-size:1rem;">Total: ₹${o.total} <span style="font-size:0.8rem; font-weight:400; color:var(--muted)">via ${o.payment.toUpperCase()}</span></div>
+    </div>`).join('');
+}
+
+// ─── ADMIN LOGIN ──────────────────────────────────────────────────────────────
+function adminLogin() {
+  const user = document.getElementById('admin-user').value.trim();
+  const pass = document.getElementById('admin-pass').value;
+  const admins = DB.get('admins') || [];
+  const found = admins.find(a => a.username===user && a.password===pass);
+  if (!found) { toast('Invalid credentials', 'error'); return; }
+  DB.set('admin_session', { user, name: found.name, role: found.role, ts: Date.now() });
+  showPage('admin');
+  adminTab('dashboard');
+  toast(`Welcome back, ${found.name}! ☕`, 'success');
+}
+
+function adminLogout() {
+  DB.del('admin_session');
+  showPage('store');
+  toast('Logged out successfully.');
+}
+
+function checkAdminSession() {
+  const session = DB.get('admin_session');
+  if (session && Date.now() - session.ts < 8*3600*1000) return session;
+  return null;
+}
+
+// ─── ADMIN TABS ───────────────────────────────────────────────────────────────
+function adminTab(tab) {
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  const renders = { dashboard:renderDashboard, products:renderProductsAdmin, combos:renderCombosAdmin, discounts:renderDiscountsAdmin, orders:renderAdminOrders, sales:renderSalesAdmin, admins:renderAdminsAdmin };
+  if (renders[tab]) renders[tab]();
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const orders = DB.get('orders') || [];
+  const products = DB.get('products') || [];
+  const totalRev = orders.reduce((s,o)=>s+o.total,0);
+  const paidOrders = orders.filter(o=>o.status==='paid');
+  const stats = [
+    { icon:'🛒', value: orders.length, label:'Total Orders' },
+    { icon:'💰', value: '₹'+totalRev.toLocaleString(), label:'Total Revenue' },
+    { icon:'✅', value: paidOrders.length, label:'Paid Orders' },
+    { icon:'📦', value: products.filter(p=>p.active).length, label:'Active Products' },
+    { icon:'🏪', value: new Set(orders.filter(o=>o.type==='store').map(o=>o.storeName)).size, label:'Store Partners' },
+    { icon:'👤', value: orders.filter(o=>o.type==='individual').length, label:'Individual Sales' },
+  ];
+  document.getElementById('dash-stats').innerHTML = stats.map(s=>`<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('');
+  renderMonthlyBar('monthly-bar');
+  // Recent orders table
+  const recent = [...orders].reverse().slice(0,5);
+  document.getElementById('dash-recent-orders').innerHTML = `<table class="admin-table"><thead><tr><th>ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr></thead><tbody>${recent.map(o=>`<tr><td>#${o.id}</td><td>${o.customer}</td><td>₹${o.total}</td><td><span class="badge ${o.status}">${o.status}</span></td><td>${new Date(o.date).toLocaleDateString('en-IN')}</td></tr>`).join('')}</tbody></table>`;
+}
+
+function renderMonthlyBar(containerId) {
+  const orders = DB.get('orders') || [];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const data = Array(6).fill(0).map((_,i) => {
+    const d = new Date(now.getFullYear(), now.getMonth()-5+i, 1);
+    const rev = orders.filter(o => { const od=new Date(o.date); return od.getMonth()===d.getMonth()&&od.getFullYear()===d.getFullYear(); }).reduce((s,o)=>s+o.total,0);
+    return { label: months[d.getMonth()], value: rev };
+  });
+  const max = Math.max(...data.map(d=>d.value), 1);
+  document.getElementById(containerId).innerHTML = data.map(d=>`<div class="bar-group"><div class="bar-val">₹${d.value>0?d.value.toLocaleString():'-'}</div><div class="bar" style="height:${Math.max(8,(d.value/max)*130)}px"></div><div class="bar-label">${d.label}</div></div>`).join('');
+}
+
+// ─── PRODUCTS ADMIN ───────────────────────────────────────────────────────────
+function renderProductsAdmin() {
+  const products = DB.get('products') || [];
+  const tbody = document.getElementById('products-tbody');
+  tbody.innerHTML = products.map(p=>`<tr>
+    <td>${p.icon} ${p.name}</td>
+    <td>${p.cat}</td>
+    <td>
+      <span id="price-display-${p.id}">₹${p.price}</span>
+      <input type="number" id="price-input-${p.id}" value="${p.price}" style="display:none; width:80px; padding:4px 6px; border:1.5px solid var(--caramel); border-radius:6px; font-family:'DM Sans',sans-serif;">
+    </td>
+    <td><span class="badge ${p.active?'active':'inactive'}">${p.active?'Active':'Inactive'}</span></td>
+    <td style="display:flex; gap:6px; flex-wrap:wrap">
+      <button class="btn-sm" id="edit-btn-${p.id}" onclick="toggleEditPrice('${p.id}')">✏️ Edit Price</button>
+      <button class="btn-sm btn-success" id="save-btn-${p.id}" onclick="savePrice('${p.id}')" style="display:none">💾 Save</button>
+      <button class="btn-sm ${p.active?'btn-warning':'btn-success'}" onclick="toggleProduct('${p.id}')">${p.active?'Deactivate':'Activate'}</button>
+      <button class="btn-sm btn-danger" onclick="deleteProduct('${p.id}')">🗑️</button>
+    </td>
+  </tr>`).join('');
+  // populate combo product selector
+  const sel = document.getElementById('nc-products');
+  sel.innerHTML = products.filter(p=>p.active).map(p=>`<option value="${p.id}">${p.name} (₹${p.price})</option>`).join('');
+}
+
+function toggleEditPrice(id) {
+  document.getElementById('price-display-'+id).style.display='none';
+  document.getElementById('price-input-'+id).style.display='inline-block';
+  document.getElementById('edit-btn-'+id).style.display='none';
+  document.getElementById('save-btn-'+id).style.display='inline-block';
+}
+
+function savePrice(id) {
+  const newPrice = parseInt(document.getElementById('price-input-'+id).value);
+  if (isNaN(newPrice)||newPrice<0) { toast('Invalid price', 'error'); return; }
+  const products = DB.get('products');
+  const p = products.find(x=>x.id===id);
+  if (p) p.price = newPrice;
+  DB.set('products', products);
+  renderProductsAdmin();
+  renderProducts();
+  toast('Price updated!', 'success');
+}
+
+function toggleProduct(id) {
+  const products = DB.get('products');
+  const p = products.find(x=>x.id===id);
+  if (p) p.active = !p.active;
+  DB.set('products', products);
+  renderProductsAdmin();
+  renderProducts();
+  toast(`Product ${p.active?'activated':'deactivated'}`, 'success');
+}
+
+function deleteProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  const products = DB.get('products').filter(p=>p.id!==id);
+  DB.set('products', products);
+  renderProductsAdmin();
+  renderProducts();
+  toast('Product deleted.', 'success');
+}
+
+function addProduct() {
+  const name = document.getElementById('np-name').value.trim();
+  const cat = document.getElementById('np-cat').value;
+  const price = parseInt(document.getElementById('np-price').value);
+  const desc = document.getElementById('np-desc').value.trim();
+  const icon = document.getElementById('np-icon').value.trim() || '☕';
+  const variantsRaw = document.getElementById('np-variants').value.trim();
+  const variants = variantsRaw ? variantsRaw.split(',').map(v=>v.trim()).filter(Boolean) : [];
+  if (!name||!price||!desc) { toast('Please fill in all fields', 'error'); return; }
+  const products = DB.get('products');
+  const id = 'p' + Date.now();
+  products.push({ id, name, cat, price, desc, icon, variants, active:true });
+  DB.set('products', products);
+  ['np-name','np-price','np-desc','np-icon','np-variants'].forEach(id => document.getElementById(id).value='');
+  renderProductsAdmin();
+  renderProducts();
+  toast(`${name} added!`, 'success');
+}
+
+// ─── COMBOS ADMIN ─────────────────────────────────────────────────────────────
+function renderCombosAdmin() {
+  const combos = DB.get('combos') || [];
+  const products = DB.get('products') || [];
+  const tbody = document.getElementById('combos-tbody');
+  tbody.innerHTML = combos.map(c => {
+    const items = c.productIds.map(id=>products.find(p=>p.id===id)).filter(Boolean);
+    const original = items.reduce((s,p)=>s+p.price,0);
+    return `<tr>
+      <td>${c.name}</td>
+      <td>${items.map(p=>p.name).join(', ')}</td>
+      <td>₹${original}</td>
+      <td>₹${c.price} <span style="color:var(--success); font-size:0.75rem">(Save ₹${original-c.price})</span></td>
+      <td style="display:flex; gap:6px">
+        <button class="btn-sm ${c.active?'btn-warning':'btn-success'}" onclick="toggleCombo('${c.id}')">${c.active?'Deactivate':'Activate'}</button>
+        <button class="btn-sm btn-danger" onclick="deleteCombo('${c.id}')">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+  // populate product selector
+  const sel = document.getElementById('nc-products');
+  sel.innerHTML = products.filter(p=>p.active).map(p=>`<option value="${p.id}">${p.name} (₹${p.price})</option>`).join('');
+}
+
+function addCombo() {
+  const name = document.getElementById('nc-name').value.trim();
+  const price = parseInt(document.getElementById('nc-price').value);
+  const desc = document.getElementById('nc-desc').value.trim();
+  const sel = document.getElementById('nc-products');
+  const productIds = Array.from(sel.selectedOptions).map(o=>o.value);
+  if (!name||!price||productIds.length<2) { toast('Fill all fields and select at least 2 products', 'error'); return; }
+  const combos = DB.get('combos');
+  combos.push({ id:'c'+Date.now(), name, price, desc, productIds, active:true });
+  DB.set('combos', combos);
+  document.getElementById('nc-name').value='';
+  document.getElementById('nc-price').value='';
+  document.getElementById('nc-desc').value='';
+  renderCombosAdmin();
+  renderProducts();
+  toast(`Combo "${name}" created!`, 'success');
+}
+
+function toggleCombo(id) {
+  const combos = DB.get('combos');
+  const c = combos.find(x=>x.id===id);
+  if (c) c.active = !c.active;
+  DB.set('combos', combos);
+  renderCombosAdmin();
+  renderProducts();
+}
+
+function deleteCombo(id) {
+  if (!confirm('Delete this combo?')) return;
+  DB.set('combos', DB.get('combos').filter(c=>c.id!==id));
+  renderCombosAdmin();
+  renderProducts();
+  toast('Combo deleted.');
+}
+
+// ─── DISCOUNTS ADMIN ──────────────────────────────────────────────────────────
+function renderDiscountsAdmin() {
+  const discounts = DB.get('discounts') || [];
+  document.getElementById('discounts-tbody').innerHTML = discounts.map(d=>`<tr>
+    <td><strong>${d.code}</strong></td>
+    <td>${d.type==='percent'?'%':'₹ Flat'}</td>
+    <td>${d.type==='percent'?d.value+'%':'₹'+d.value}</td>
+    <td>₹${d.min||0}</td>
+    <td>${d.applies}</td>
+    <td><button class="btn-sm btn-danger" onclick="deleteDiscount('${d.code}')">🗑️</button></td>
+  </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">No discounts yet.</td></tr>';
+}
+
+function addDiscount() {
+  const code = document.getElementById('nd-code').value.trim().toUpperCase();
+  const type = document.getElementById('nd-type').value;
+  const value = parseFloat(document.getElementById('nd-value').value);
+  const min = parseFloat(document.getElementById('nd-min').value)||0;
+  const applies = document.getElementById('nd-applies').value;
+  if (!code||!value) { toast('Fill Code and Value', 'error'); return; }
+  const discounts = DB.get('discounts') || [];
+  if (discounts.find(d=>d.code===code)) { toast('Code already exists', 'error'); return; }
+  discounts.push({ code, type, value, min, applies });
+  DB.set('discounts', discounts);
+  ['nd-code','nd-value','nd-min'].forEach(id => document.getElementById(id).value='');
+  renderDiscountsAdmin();
+  toast(`Discount ${code} added!`, 'success');
+}
+
+function deleteDiscount(code) {
+  DB.set('discounts', DB.get('discounts').filter(d=>d.code!==code));
+  renderDiscountsAdmin();
+  toast('Discount removed.');
+}
+
+function setGlobalBanner() {
+  const txt = document.getElementById('global-banner').value.trim();
+  DB.set('global_banner', txt);
+  renderStoreBanner();
+  toast('Banner updated!', 'success');
+}
+
+function clearGlobalBanner() {
+  DB.set('global_banner', '');
+  document.getElementById('global-banner').value = '';
+  renderStoreBanner();
+  toast('Banner cleared.');
+}
+
+// ─── ORDERS ADMIN ─────────────────────────────────────────────────────────────
+function renderAdminOrders() {
+  const orders = DB.get('orders') || [];
+  const statusFilter = document.getElementById('order-filter-status')?.value || 'all';
+  const typeFilter = document.getElementById('order-filter-type')?.value || 'all';
+  const filtered = orders.filter(o => (statusFilter==='all'||o.status===statusFilter) && (typeFilter==='all'||o.type===typeFilter));
+  const tbody = document.getElementById('admin-orders-tbody');
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted)">No orders found.</td></tr>'; return; }
+  tbody.innerHTML = [...filtered].reverse().map(o=>`<tr>
+    <td><strong>#${o.id}</strong></td>
+    <td>${o.customer}<br><span style="font-size:0.75rem;color:var(--muted)">${o.phone}</span></td>
+    <td><span class="badge ${o.type==='store'?'active':'pending'}">${o.type}</span>${o.storeName?'<br><span style="font-size:0.75rem">'+o.storeName+'</span>':''}</td>
+    <td style="font-size:0.8rem">${o.items.map(i=>`${i.name} ×${i.qty}`).join('<br>')}</td>
+    <td><strong>₹${o.total}</strong></td>
+    <td>${o.payment.toUpperCase()}</td>
+    <td><span class="badge ${o.status}">${o.status.toUpperCase()}</span><br>
+      ${o.status==='pending'?`<button class="btn-sm btn-success" style="margin-top:4px;font-size:0.7rem" onclick="markPaid('${o.id}')">Mark Paid</button>`:''}
+    </td>
+    <td style="font-size:0.78rem">${new Date(o.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
+  </tr>`).join('');
+}
+
+function markPaid(id) {
+  const orders = DB.get('orders');
+  const o = orders.find(x=>x.id===id);
+  if (o) o.status = 'paid';
+  DB.set('orders', orders);
+  renderAdminOrders();
+  toast('Order marked as paid!', 'success');
+}
+
+// ─── SALES ANALYTICS ─────────────────────────────────────────────────────────
+function renderSalesAdmin() {
+  const orders = DB.get('orders') || [];
+  const products = DB.get('products') || [];
+  const totalRev = orders.reduce((s,o)=>s+o.total,0);
+  const storeOrders = orders.filter(o=>o.type==='store');
+  const individualOrders = orders.filter(o=>o.type==='individual');
+  const allItems = orders.flatMap(o=>o.items);
+  const totalItems = allItems.reduce((s,i)=>s+i.qty,0);
+  const avgOrder = orders.length ? Math.round(totalRev/orders.length) : 0;
+
+  document.getElementById('sales-stats').innerHTML = [
+    { icon:'💰', value:'₹'+totalRev.toLocaleString(), label:'Total Revenue' },
+    { icon:'📦', value:totalItems, label:'Items Sold' },
+    { icon:'🏪', value:storeOrders.length, label:'Store Orders' },
+    { icon:'👤', value:individualOrders.length, label:'Individual Orders' },
+    { icon:'📊', value:'₹'+avgOrder, label:'Avg Order Value' },
+    { icon:'✅', value:orders.filter(o=>o.status==='paid').length, label:'Confirmed Paid' },
+  ].map(s=>`<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('');
+
+  renderMonthlyBar('sales-monthly-bar');
+
+  // Top products
+  const productSales = {};
+  allItems.forEach(i => { if(!productSales[i.name]) productSales[i.name]=0; productSales[i.name]+=i.qty; });
+  const sorted = Object.entries(productSales).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxQty = sorted[0]?sorted[0][1]:1;
+  document.getElementById('top-products-list').innerHTML = sorted.map(([name,qty])=>`
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:3px"><span>${name}</span><strong>${qty} units</strong></div>
+      <div style="background:var(--cream);border-radius:4px;height:8px;overflow:hidden"><div style="background:linear-gradient(to right,var(--mocha),var(--caramel));width:${(qty/maxQty)*100}%;height:100%;border-radius:4px;transition:width 0.5s"></div></div>
+    </div>`).join('') || '<p style="color:var(--muted);font-size:0.875rem">No sales data.</p>';
+
+  // Type breakdown
+  const indRev = individualOrders.reduce((s,o)=>s+o.total,0);
+  const strRev = storeOrders.reduce((s,o)=>s+o.total,0);
+  const totalB = indRev+strRev||1;
+  document.getElementById('sales-type-breakdown').innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:4px"><span>👤 Individual</span><span>₹${indRev.toLocaleString()} (${Math.round(indRev/totalB*100)}%)</span></div>
+      <div style="background:var(--cream);border-radius:4px;height:12px"><div style="background:var(--caramel);width:${indRev/totalB*100}%;height:100%;border-radius:4px"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:4px"><span>🏪 Store</span><span>₹${strRev.toLocaleString()} (${Math.round(strRev/totalB*100)}%)</span></div>
+      <div style="background:var(--cream);border-radius:4px;height:12px"><div style="background:var(--sage);width:${strRev/totalB*100}%;height:100%;border-radius:4px"></div></div>
+    </div>`;
+
+  // Store breakdown
+  const storeMap = {};
+  storeOrders.forEach(o => {
+    const sn = o.storeName || 'Unnamed Store';
+    if (!storeMap[sn]) storeMap[sn] = { orders:0, items:0, revenue:0 };
+    storeMap[sn].orders++;
+    storeMap[sn].items += o.items.reduce((s,i)=>s+i.qty,0);
+    storeMap[sn].revenue += o.total;
+  });
+  const storeTbody = document.getElementById('store-sales-tbody');
+  const entries = Object.entries(storeMap).sort((a,b)=>b[1].revenue-a[1].revenue);
+  storeTbody.innerHTML = entries.length ? entries.map(([name,d])=>`<tr>
+    <td><strong>${name}</strong></td>
+    <td>${d.orders}</td>
+    <td>${d.items}</td>
+    <td>₹${d.revenue.toLocaleString()}</td>
+    <td>₹${Math.round(d.revenue/d.orders)}</td>
+  </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted)">No store orders yet.</td></tr>';
+}
+
+// ─── ADMINS ADMIN ─────────────────────────────────────────────────────────────
+function renderAdminsAdmin() {
+  const admins = DB.get('admins') || [];
+  const session = DB.get('admin_session');
+  document.getElementById('admins-tbody').innerHTML = admins.map(a=>`<tr>
+    <td><strong>${a.username}</strong>${a.username===session?.user?'<span class="badge active" style="margin-left:6px">You</span>':''}</td>
+    <td>${a.name}</td>
+    <td><span class="badge active">${a.role}</span></td>
+    <td>${new Date(a.added).toLocaleDateString('en-IN')}</td>
+    <td>${a.username!==session?.user?`<button class="btn-sm btn-danger" onclick="deleteAdmin('${a.username}')">Remove</button>`:'<span style="color:var(--muted);font-size:0.8rem">Current user</span>'}</td>
+  </tr>`).join('');
+}
+
+function addAdmin() {
+  const username = document.getElementById('na-user').value.trim();
+  const password = document.getElementById('na-pass').value;
+  const name = document.getElementById('na-name').value.trim();
+  const role = document.getElementById('na-role').value;
+  if (!username||!password||!name) { toast('Fill all fields', 'error'); return; }
+  const admins = DB.get('admins');
+  if (admins.find(a=>a.username===username)) { toast('Username already exists', 'error'); return; }
+  admins.push({ username, password, name, role, added: new Date().toISOString() });
+  DB.set('admins', admins);
+  ['na-user','na-pass','na-name'].forEach(id=>document.getElementById(id).value='');
+  renderAdminsAdmin();
+  toast(`Admin ${username} added!`, 'success');
+}
+
+function deleteAdmin(username) {
+  if (!confirm(`Remove admin ${username}?`)) return;
+  DB.set('admins', DB.get('admins').filter(a=>a.username!==username));
+  renderAdminsAdmin();
+  toast(`Admin ${username} removed.`);
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg, type='') {
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' '+type : '');
+  el.textContent = msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 3100);
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+initDB();
+renderProducts();
+renderStoreBanner();
+updateCartUI();
+
+// Auto-login if session exists
+if (checkAdminSession() && window.location.hash === '#admin') {
+  showPage('admin');
+  adminTab('dashboard');
+}
+</script>
+</body>
+</html>
